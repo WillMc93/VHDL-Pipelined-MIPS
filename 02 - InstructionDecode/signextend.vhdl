@@ -17,7 +17,7 @@ begin
 			Immediate_out <= (others => '0');
 			Immediate_out(IMMED - 1 downto 0) <= Immediate_in(IMMED - 1 downto 0);
 		else
-			Immediate_out <= (others => '1') then
+			Immediate_out <= (others => '1');
 			Immediate_out(IMMED - 1 downto 0) <= Immediate_in(IMMED - 1 downto 0);
 		end if;
 	end process;

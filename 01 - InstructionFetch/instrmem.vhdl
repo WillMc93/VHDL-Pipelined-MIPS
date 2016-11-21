@@ -24,7 +24,7 @@ begin
 				when 0 => Instr_out <= "0000000000000000";  -- intentionally left blank
 				when 1 => Instr_out <= "0001000111001010"; -- set register $7 to 10
 				when 2 => Instr_out <= "0001000001000001"; -- set register $1 to 1
-				when 8 => Instr_out <= "1001111001010101"; -- beq $7, $1, 21
+				when 7 => Instr_out <= "1001111001010101"; -- beq $7, $1, 21
 				when 9 => Instr_out <= "0000001001001001"; -- increment $1
 				when 15 => Instr_out <= "1100000000110111";	-- jump back to right before the beq
 				when 21 => Instr_out <= "1100000000101011"; -- do it again

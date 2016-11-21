@@ -41,7 +41,7 @@ begin
 	begin
 		if rising_edge(CLK) then
 			if RST = '1' then
-				PC1_out <= (others => '0');
+				PC_out <= (others => '0');
 				RtAddr_out <= (others => '0');
 				RdAddr_out <= (others => '0');
 

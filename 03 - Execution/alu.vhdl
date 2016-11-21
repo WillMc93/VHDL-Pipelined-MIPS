@@ -63,7 +63,7 @@ architecture arith of ALU is
 			end if;
 
 			-- set ZERO (unneccary but here anyway)
-			if tResult = 0 then
+			if unsigned(tResult) = 0 then
 				ZERO <= '1';
 			else
 				ZERO <= '0';

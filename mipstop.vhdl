@@ -40,7 +40,7 @@ architecture pipeline of MIPS is
 	component InstrMem is
 		generic (ADDR: integer; WORD: integer);
 		port (
-			CLK: in std_logic;
+			--CLK: in std_logic;
 			PC_in: in std_logic_vector(ADDR - 1 downto 0);
 
 			Instr_out: out std_logic_vector(WORD - 1 downto 0)
@@ -65,7 +65,7 @@ architecture pipeline of MIPS is
 	component CtrlCircuit is
 		generic (OP: integer);
 		port (
-			CLK: in std_logic;
+			--CLK: in std_logic;
 			Instr: in std_logic_vector (OP - 1 downto 0);
 
 			RegDest: out std_logic := '0';
@@ -96,14 +96,23 @@ architecture pipeline of MIPS is
 
 	    	-- outputs
 	    	data1: out std_logic_vector(WORD - 1 downto 0); -- register 1 data
-	    	data2: out std_logic_vector(WORD - 1 downto 0) -- register 2 data
+	    	data2: out std_logic_vector(WORD - 1 downto 0); -- register 2 data
+			
+			-- debug outputs
+			r1: out std_logic_vector(WORD - 1 downto 0);
+			r2: out std_logic_vector(WORD - 1 downto 0);
+			r3: out std_logic_vector(WORD - 1 downto 0);
+			r4: out std_logic_vector(WORD - 1 downto 0);
+			r5: out std_logic_vector(WORD - 1 downto 0);
+			r6: out std_logic_vector(WORD - 1 downto 0);
+			r7: out std_logic_vector(WORD - 1 downto 0)
 	  	);
 	end component RegFile;
 
 	component SignExtend is
 		generic (WORD: integer; IMMED: integer);
 		port (
-			CLK: in std_logic;
+			--CLK: in std_logic;
 
 			Immediate_in: in std_logic_vector(IMMED - 1 downto 0);
 			Immediate_out: out std_logic_vector(WORD - 1 downto 0)
@@ -117,7 +126,7 @@ architecture pipeline of MIPS is
 			RST: in std_logic;
 
 			-- inputs
-			PC1_in: in std_logic_vector(WORD - 1 downto 0);
+			PC_in: in std_logic_vector(WORD - 1 downto 0);
 			RtAddr_in: in std_logic_vector(REG - 1 downto 0);
 			RdAddr_in: in std_logic_vector(REG - 1 downto 0);
 			Data1_in: in std_logic_vector(WORD - 1 downto 0);
@@ -125,7 +134,7 @@ architecture pipeline of MIPS is
 			Immediate_in: in std_logic_vector(WORD - 1 downto 0);
 
 			-- outputs
-			PC1_out: out std_logic_vector(WORD - 1 downto 0);
+			PC_out: out std_logic_vector(WORD - 1 downto 0);
 			RtAddr_out: out std_logic_vector(REG - 1 downto 0);
 			RdAddr_out: out std_logic_vector(REG - 1 downto 0);
 			Data1_out: out std_logic_vector(WORD - 1 downto 0);
@@ -139,7 +148,7 @@ architecture pipeline of MIPS is
 	component ALU is
 		generic (WORD: integer; ALUOP: integer);
 		port (
-			CLK: in std_logic;
+			--CLK: in std_logic;
 
 			Data1: in std_logic_vector(WORD - 1 downto 0);
 			Data2: in std_logic_vector(WORD - 1 downto 0);
@@ -157,7 +166,7 @@ architecture pipeline of MIPS is
 	component Jumper is
 		generic (WORD: integer; ADDR: integer);
 		port (
-			CLK: in std_logic;
+			--CLK: in std_logic;
 			RST: in std_logic;
 
 			Branch: in std_logic;
@@ -166,7 +175,7 @@ architecture pipeline of MIPS is
 			JAL_in: in std_logic;
 			JR_in: in std_logic;
 
-			PC1: in std_logic_vector(ADDR - 1 downto 0);
+			PC: in std_logic_vector(ADDR - 1 downto 0);
 			Data1: in std_logic_vector(WORD - 1 downto 0);
 			Data2: in std_logic_vector(WORD - 1 downto 0);
 			Immed: in std_logic_vector(ADDR - 1 downto 0);
@@ -200,7 +209,6 @@ architecture pipeline of MIPS is
 	component DataMem is
 		generic(ADDR: integer; WORD: integer);
 		port (
-			CLK: in std_logic;
 			ADDR_in: in std_logic_vector(WORD - 1 downto 0);
 			Data_in: in std_logic_vector(WORD - 1 downto 0);
 			MemWrite_in: in std_logic;
@@ -323,13 +331,13 @@ architecture pipeline of MIPS is
 	signal PCSrc: std_logic;
 	--signal JAL: std_logic;
 	--signal JR: std_logic;
-	signal IF_PC1_out: std_logic_vector(ADDR - 1 downto 0);
+	--signal IF_PC1_out: std_logic_vector(ADDR - 1 downto 0);
 	signal IF_PC_out: std_logic_vector(ADDR - 1 downto 0);
 	signal IF_Instr_out: std_logic_vector(WORD - 1 downto 0);
 	signal IF_IDRst: std_logic;
 
 	-- Instruction Decode Signals
-	signal ID_PC1: std_logic_vector(ADDR - 1 downto 0);
+	signal ID_PC: std_logic_vector(ADDR - 1 downto 0);
 	signal ID_Instr: std_logic_vector(WORD - 1 downto 0);
 	signal ID_CtrlBus: std_logic_vector(13 downto 0); -- carries control signals to pipeline register
 	signal ID_data1: std_logic_vector(WORD - 1 downto 0);
@@ -344,13 +352,11 @@ architecture pipeline of MIPS is
 	signal Jump: std_logic;
 	signal JAL: std_logic;
 	signal JR: std_logic;
-	--signal EX_JAL: std_logic;
-	--signal EX_JR: std_logic;
 	signal Branch: std_logic;
 	signal BranchType: std_logic;
 	signal EX_MBus: std_logic_vector(1 downto 0);
 	signal EX_WBBus: std_logic_vector(1 downto 0);
-	signal EX_PC1: std_logic_vector(ADDR - 1 downto 0);
+	signal EX_PC: std_logic_vector(ADDR - 1 downto 0);
 	signal RtAddr: std_logic_vector(REG - 1 downto 0);
 	signal RdAddr: std_logic_vector(REG - 1 downto 0);
 	signal Data1: std_logic_vector(WORD - 1 downto 0);
@@ -376,24 +382,17 @@ architecture pipeline of MIPS is
 	signal MemToReg: std_logic;
 	signal WB_Data: std_logic_vector(WORD - 1 downto 0);
 	signal WB_ALUResult: std_logic_vector(WORD - 1 downto 0);
-
-	-- Buffer Signals (DARN YOU VHDL!!!)
-	signal IF_PC1Buffer: std_logic_vector(WORD - 1 downto 0);
-
-	signal RdBuffer: std_logic_vector(REG - 1 downto 0);
-	signal RtBuffer: std_logic_vector(REG - 1 downto 0);
-	signal EX_PC1Buffer: std_logic_vector(WORD - 1 downto 0);
-
-	signal EX_RegWriteAddrBuffer: std_logic_vector(REG - 1 downto 0);
-	signal EX_MBusBuffer: std_logic_vector(1 downto 0);
-	signal EX_WBBusBuffer: std_logic_vector(1 downto 0);
-
-	signal M_WBBusBuffer: std_logic_vector(1 downto 0);
-
-	signal M_ALUResultBuffer: std_logic_vector(WORD - 1 downto 0);
-	signal RegWriteAddrBuffer: std_logic_vector(REG - 1 downto 0);
-
-
+ 
+	-- Debug Signals
+	signal r1Sig: std_logic_vector(WORD - 1 downto 0);
+	signal r2Sig: std_logic_vector(WORD - 1 downto 0);
+	signal r3Sig: std_logic_vector(WORD - 1 downto 0);
+	signal r4Sig: std_logic_vector(WORD - 1 downto 0);
+	signal r5Sig: std_logic_vector(WORD - 1 downto 0);
+	signal r6Sig: std_logic_vector(WORD - 1 downto 0);
+	signal r7Sig: std_logic_vector(WORD - 1 downto 0);
+	
+			 	   	
 	-------------------------
 	-- Instruction Fetch Map
 	-------------------------
@@ -407,17 +406,12 @@ architecture pipeline of MIPS is
 				PC_in => PC_in,
 				PCSrc => PCSrc,
 
-				--PC1_out => IF_PC1_out,
 				PC_out => IF_PC_out
 			);
-		--PC1_Buffer: genBuffer
-		--	generic map(length => WORD)
-		--	port map(CLK, IF_PC1_out, IF_PC1Buffer);
-
+		
 		Instruction: InstrMem
 			generic map(ADDR => ADDR, WORD => WORD)
 			port map(
-				CLK => CLK,
 				PC_in => IF_PC_out,
 				Instr_out => IF_Instr_out
 			);
@@ -435,11 +429,10 @@ architecture pipeline of MIPS is
 			port map (
 				CLK => CLK,
 				RST => IF_IDRST,
-				--PC_in => IF_PC1Buffer,
 				PC_in => IF_PC_out,
 				Instr_in => IF_Instr_out,
 
-				PC_out => ID_PC1,
+				PC_out => ID_PC,
 				Instr_out => ID_Instr
 			);
 
@@ -449,7 +442,7 @@ architecture pipeline of MIPS is
 		Ctrl: CtrlCircuit
 			generic map (OP => OP)
 			port map (
-				CLK => CLK,
+				--CLK => CLK,
 				Instr => ID_Instr(15 downto 12),
 
 				-- Execution Stage Signals
@@ -483,13 +476,22 @@ architecture pipeline of MIPS is
 
 				-- outputs
 				data1 => ID_data1,
-				data2 => ID_data2
+				data2 => ID_data2,
+				
+				-- debug outputs
+				r1 => r1Sig,
+				r2 => r2Sig,
+				r3 => r3Sig,
+				r4 => r4Sig,
+				r5 => r5Sig,
+				r6 => r6Sig,
+				r7 => r7Sig
 			);
 
 		SigExt: SignExtend
 			generic map (WORD => WORD, IMMED => IMMED)
 			port map (
-				CLK => CLK,
+				--CLK => CLK,
 
 				Immediate_in => ID_Instr(5 downto 0),
 				Immediate_out => ID_Immediate
@@ -560,7 +562,7 @@ architecture pipeline of MIPS is
 				RST => ID_EXRst,
 
 				-- inputs
-				PC1_in => ID_PC1,
+				PC_in => ID_PC,
 				RtAddr_in => ID_Instr(8 downto 6),
 				RdAddr_in => ID_Instr(5 downto 3),
 
@@ -569,25 +571,13 @@ architecture pipeline of MIPS is
 				Immediate_in => ID_Immediate,
 
 				-- outputs
-				PC1_out => EX_PC1Buffer,
-				RtAddr_out => RtBuffer,
-				RdAddr_out => RdBuffer,
+				PC_out => EX_PC,
+				RtAddr_out => RtAddr,
+				RdAddr_out => RdAddr,
 				Data1_out => Data1,
 				Data2_out => Data2,
 				Immediate_out => Immediate
 			);
-
-		RtAddrBuffer: genBuffer
-			generic map (length => REG)
-			port map (CLK, RtBuffer, RtAddr);
-		RdAddrBuffer: genBuffer
-			generic map (length => REG)
-			port map (CLK, RdBuffer, RdAddr);
-		EX_PCOneBuffer: genBuffer
-			generic map (length => WORD)
-			port map (CLK, EX_PC1Buffer, EX_PC1);
-
-
 
 		-----------------
 		-- Execution Map
@@ -595,8 +585,6 @@ architecture pipeline of MIPS is
 		ArithmeticUnit: ALU
 			generic map (WORD => WORD, ALUOP => ALUOP_len)
 			port map (
-				CLK => CLK,
-
 				Data1 => Data1,
 				Data2 => Data2,
 				Immed => Immediate,
@@ -612,7 +600,6 @@ architecture pipeline of MIPS is
 		JumpHardware: Jumper
 			generic map (WORD => WORD, ADDR => ADDR)
 			port map (
-				CLK => CLK,
 				RST => RST,
 
 
@@ -622,7 +609,7 @@ architecture pipeline of MIPS is
 				Branch => Branch,
 				BranchType => BranchType,
 
-				PC1 => EX_PC1,
+				PC => EX_PC,
 				Data1 => Data1,
 				Data2 => Data2,
 				Immed => Immediate, -- arthimetic problem here
@@ -640,28 +627,20 @@ architecture pipeline of MIPS is
 				I1 => RdAddr,
 				Sel => RegDest,
 
-				Outp => EX_RegWriteAddrBuffer
+				Outp => EX_RegWriteAddr
 			);
-
-		EX_M_Buffer: genBuffer
-			generic map (length => 2)
-			port map (CLK, EX_MBus, EX_MBusBuffer);
 
 		EX_M: m
 			port map (
 				CLK => CLK,
 				RST => RST,
 
-				MemWrite_in => EX_MBusBuffer(1),
-				MemRead_in => EX_MBusBuffer(0),
+				MemWrite_in => EX_MBus(1),
+				MemRead_in => EX_MBus(0),
 
 				MemWrite_out => MemWrite,
 				MemRead_out => MemRead
 			);
-
-		EX_WB_Buffer: genBuffer
-			generic map(length => 2)
-			port map(CLK, EX_WBBus, EX_WBBusBuffer);
 
 		EX_WB: wb
 			port map (
@@ -669,8 +648,8 @@ architecture pipeline of MIPS is
 				RST => RST,
 
 				-- inputs
-				MemToReg_in => EX_WBBusBuffer(1),
-				RegWrite_in => EX_WBBusBuffer(0),
+				MemToReg_in => EX_WBBus(1),
+				RegWrite_in => EX_WBBus(0),
 
 				-- outputs
 				MemToReg_out => M_WBBus(1),
@@ -694,17 +673,13 @@ architecture pipeline of MIPS is
 				DestAddr_out => M_RegWriteAddr
 			);
 
-		EX_WriteAddrBuffer: genBuffer
-			generic map(length => REG)
-			port map (CLK, EX_RegWriteAddrBuffer, EX_RegWriteAddr);
-
 		---------------
 		-- Memory Map
 		---------------
 		DataMemory: DataMem
 			generic map (ADDR => ADDR,  WORD => WORD)
 			port map (
-				CLK => CLK,
+				--CLK => CLK,
 				ADDR_in => M_ALUResult,
 				Data_in => M_Data,
 				MemWrite_in => MemWrite,
@@ -719,17 +694,13 @@ architecture pipeline of MIPS is
 				RST => RST,
 
 				-- inputs
-				MemToReg_in => M_WBBusBuffer(1),
-				RegWrite_in => M_WBBusBuffer(0),
+				MemToReg_in => M_WBBus(1),
+				RegWrite_in => M_WBBus(0),
 
 				-- outputs
 				MemToReg_out => MemToReg,
 				RegWrite_out => RegWrite
 			);
-
-		M_WB_Buffer: genBuffer
-			generic map (length => 2)
-			port map (CLK, M_WBBus, M_WBBusBuffer);
 
 		M_WBRegister: M_WBReg
 			generic map (WORD => WORD, REG => REG)
@@ -746,15 +717,9 @@ architecture pipeline of MIPS is
 				Data_out => WB_Data,
 				ALUResult_out => WB_ALUResult,
 				RegWriteAddr_out => RegWriteAddr
-			);
-	--	WriteAddrBuffer: genBuffer
---			generic map(length => REG)
---			port map(CLK, RegWriteAddrBuffer, RegWriteAddr);
-
-		DataBuffer: genBuffer
-			generic map (length => WORD)
-			port map (CLK, M_ALUResult, M_ALUResultBuffer);
-
+			); 
+			
+			
 		------------------
 		-- Write Back Map
 		------------------

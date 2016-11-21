@@ -41,7 +41,7 @@ begin
 			elsif JAL_in = '1' then -- errors possible with this guy
 				PC_out <= PC_next;
 				PCSrc <= '1';
-				rA <= PC1;
+				rA <= std_logic_vector(signed(PC) + 1);
 
 			elsif JR_in = '1' then
 				PC_out <= rA;
