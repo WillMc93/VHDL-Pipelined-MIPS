@@ -32,7 +32,7 @@ architecture pipeline of MIPS is
 			--JAL: in std_logic;
 			--JR: in std_logic;
 
-			PC1_out: out std_logic_vector(ADDR - 1 downto 0);
+			--PC1_out: out std_logic_vector(ADDR - 1 downto 0);
 			PC_out: out std_logic_vector(ADDR - 1 downto 0)
 		);
 	end component PC;
@@ -104,7 +104,7 @@ architecture pipeline of MIPS is
 		generic (WORD: integer; IMMED: integer);
 		port (
 			CLK: in std_logic;
-		
+
 			Immediate_in: in std_logic_vector(IMMED - 1 downto 0);
 			Immediate_out: out std_logic_vector(WORD - 1 downto 0)
 		);
@@ -304,7 +304,7 @@ architecture pipeline of MIPS is
 			Outp: out std_logic_vector(length - 1 downto 0)
 		);
 	end component genMux;
-	
+
 	component genBuffer is
 		generic (length: integer);
 		port(
@@ -376,20 +376,20 @@ architecture pipeline of MIPS is
 	signal MemToReg: std_logic;
 	signal WB_Data: std_logic_vector(WORD - 1 downto 0);
 	signal WB_ALUResult: std_logic_vector(WORD - 1 downto 0);
-	
+
 	-- Buffer Signals (DARN YOU VHDL!!!)
 	signal IF_PC1Buffer: std_logic_vector(WORD - 1 downto 0);
-	
+
 	signal RdBuffer: std_logic_vector(REG - 1 downto 0);
 	signal RtBuffer: std_logic_vector(REG - 1 downto 0);
 	signal EX_PC1Buffer: std_logic_vector(WORD - 1 downto 0);
-	
+
 	signal EX_RegWriteAddrBuffer: std_logic_vector(REG - 1 downto 0);
 	signal EX_MBusBuffer: std_logic_vector(1 downto 0);
 	signal EX_WBBusBuffer: std_logic_vector(1 downto 0);
-	
+
 	signal M_WBBusBuffer: std_logic_vector(1 downto 0);
-	
+
 	signal M_ALUResultBuffer: std_logic_vector(WORD - 1 downto 0);
 	signal RegWriteAddrBuffer: std_logic_vector(REG - 1 downto 0);
 
@@ -406,15 +406,13 @@ architecture pipeline of MIPS is
 
 				PC_in => PC_in,
 				PCSrc => PCSrc,
-				--JAL => JAL,
-				--JR => JR,
 
-				PC1_out => IF_PC1_out,
+				--PC1_out => IF_PC1_out,
 				PC_out => IF_PC_out
 			);
-		PC1_Buffer: genBuffer
-			generic map(length => WORD)
-			port map(CLK, IF_PC1_out, IF_PC1Buffer);
+		--PC1_Buffer: genBuffer
+		--	generic map(length => WORD)
+		--	port map(CLK, IF_PC1_out, IF_PC1Buffer);
 
 		Instruction: InstrMem
 			generic map(ADDR => ADDR, WORD => WORD)
@@ -437,7 +435,8 @@ architecture pipeline of MIPS is
 			port map (
 				CLK => CLK,
 				RST => IF_IDRST,
-				PC_in => IF_PC1Buffer,
+				--PC_in => IF_PC1Buffer,
+				PC_in => IF_PC_out,
 				Instr_in => IF_Instr_out,
 
 				PC_out => ID_PC1,
@@ -491,7 +490,7 @@ architecture pipeline of MIPS is
 			generic map (WORD => WORD, IMMED => IMMED)
 			port map (
 				CLK => CLK,
-				
+
 				Immediate_in => ID_Instr(5 downto 0),
 				Immediate_out => ID_Immediate
 			);
@@ -577,7 +576,7 @@ architecture pipeline of MIPS is
 				Data2_out => Data2,
 				Immediate_out => Immediate
 			);
-			
+
 		RtAddrBuffer: genBuffer
 			generic map (length => REG)
 			port map (CLK, RtBuffer, RtAddr);
@@ -587,8 +586,8 @@ architecture pipeline of MIPS is
 		EX_PCOneBuffer: genBuffer
 			generic map (length => WORD)
 			port map (CLK, EX_PC1Buffer, EX_PC1);
-			
-			
+
+
 
 		-----------------
 		-- Execution Map
@@ -643,7 +642,7 @@ architecture pipeline of MIPS is
 
 				Outp => EX_RegWriteAddrBuffer
 			);
-			
+
 		EX_M_Buffer: genBuffer
 			generic map (length => 2)
 			port map (CLK, EX_MBus, EX_MBusBuffer);
@@ -659,7 +658,7 @@ architecture pipeline of MIPS is
 				MemWrite_out => MemWrite,
 				MemRead_out => MemRead
 			);
-		
+
 		EX_WB_Buffer: genBuffer
 			generic map(length => 2)
 			port map(CLK, EX_WBBus, EX_WBBusBuffer);
@@ -694,7 +693,7 @@ architecture pipeline of MIPS is
 				Data2_out => M_Data,
 				DestAddr_out => M_RegWriteAddr
 			);
-			
+
 		EX_WriteAddrBuffer: genBuffer
 			generic map(length => REG)
 			port map (CLK, EX_RegWriteAddrBuffer, EX_RegWriteAddr);
@@ -727,7 +726,7 @@ architecture pipeline of MIPS is
 				MemToReg_out => MemToReg,
 				RegWrite_out => RegWrite
 			);
-		
+
 		M_WB_Buffer: genBuffer
 			generic map (length => 2)
 			port map (CLK, M_WBBus, M_WBBusBuffer);
@@ -751,7 +750,7 @@ architecture pipeline of MIPS is
 	--	WriteAddrBuffer: genBuffer
 --			generic map(length => REG)
 --			port map(CLK, RegWriteAddrBuffer, RegWriteAddr);
-			
+
 		DataBuffer: genBuffer
 			generic map (length => WORD)
 			port map (CLK, M_ALUResult, M_ALUResultBuffer);
