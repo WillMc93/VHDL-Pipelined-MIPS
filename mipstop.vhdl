@@ -306,6 +306,7 @@ architecture pipeline of MIPS is
 	component genMux is
 		generic (length: integer);
 		port (
+			CLK: in std_logic;
 			I0, I1: in std_logic_vector(length - 1 downto 0);
 			Sel: in std_logic;
 
@@ -623,6 +624,7 @@ architecture pipeline of MIPS is
 		DestMux: genMux
 			generic map (length => REG)
 			port map (
+				CLK => CLK,
 				I0 => RtAddr,
 				I1 => RdAddr,
 				Sel => RegDest,
@@ -726,6 +728,7 @@ architecture pipeline of MIPS is
 		WB_Mux: genMux
 			generic map (length => WORD)
 			port map (
+				CLK => CLK,
 				I0 => WB_Data,
 				I1 => WB_ALUResult,
 				Sel => MemToReg,
