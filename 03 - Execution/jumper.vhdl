@@ -33,15 +33,17 @@ begin
 			PC_out <= (others => '0');
 			PCSrc <= '0';
 		else
-			PC_next := std_logic_vector((signed(PC) + 1) + signed(Immed)); -- PC+1 + Immediate
+			PC_next := std_logic_vector(unsigned(PC) + 1); -- PC + 1
+			PC_next := std_logic_vector(signed(PC_next) + signed(Immed)); -- PC+1 + Immeditate
 			if Jump = '1' then
 				PC_out <= PC_next;
 				PCSrc <= '1';
 
 			elsif JAL_in = '1' then -- errors possible with this guy
+				rA <= std_logic_vector(signed(PC_next) - signed(Immed)); -- set rA to PC + 1 
 				PC_out <= PC_next;
 				PCSrc <= '1';
-				rA <= std_logic_vector(signed(PC) + 1);
+				
 
 			elsif JR_in = '1' then
 				PC_out <= rA;

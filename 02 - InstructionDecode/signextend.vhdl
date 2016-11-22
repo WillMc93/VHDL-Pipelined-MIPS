@@ -13,12 +13,7 @@ architecture extend of SignExtend is
 begin
 	process(Immediate_in)
 	begin
-		if Immediate_in(IMMED - 1) = '0' then
-			Immediate_out <= (others => '0');
-			Immediate_out(IMMED - 1 downto 0) <= Immediate_in(IMMED - 1 downto 0);
-		else
-			Immediate_out <= (others => '1');
-			Immediate_out(IMMED - 1 downto 0) <= Immediate_in(IMMED - 1 downto 0);
-		end if;
+		Immediate_out <= (others => Immediate_in(IMMED - 1)); -- copy LSB everywhere
+		Immediate_out (IMMED - 1 downto 0) <= Immediate_in; -- copy the bits we actually want
 	end process;
 end architecture extend;

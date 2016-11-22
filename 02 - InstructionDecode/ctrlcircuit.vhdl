@@ -82,7 +82,7 @@ begin
 				RegDest <= 'X';
 				ALUSrc <= '0';
 				MemToReg <= 'X';
-				RegWrite <= 'X';
+				RegWrite <= '0';
 				MemRead <= 'X';
 				MemWrite <= '0';
 				Branch <= '1';
