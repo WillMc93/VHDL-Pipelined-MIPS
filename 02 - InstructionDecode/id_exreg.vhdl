@@ -11,7 +11,7 @@ entity ID_EXReg is
 		-- inputs
 		----------------
 		-- addresses
-		PC1_in: in std_logic_vector(WORD - 1 downto 0);
+		PC_in: in std_logic_vector(WORD - 1 downto 0);
 		RtAddr_in: in std_logic_vector(REG - 1 downto 0);
 		RdAddr_in: in std_logic_vector(REG - 1 downto 0);
 
@@ -24,7 +24,7 @@ entity ID_EXReg is
 		-- outputs
 		----------------
 		--addresses
-		PC1_out: out std_logic_vector(WORD - 1 downto 0);
+		PC_out: out std_logic_vector(WORD - 1 downto 0);
 		RtAddr_out: out std_logic_vector(REG - 1 downto 0);
 		RdAddr_out: out std_logic_vector(REG - 1 downto 0);
 
@@ -41,18 +41,18 @@ begin
 	begin
 		if rising_edge(CLK) then
 			if RST = '1' then
-				PC1_out <= (others => '0');
+				PC_out <= (others => '0');
 				RtAddr_out <= (others => '0');
 				RdAddr_out <= (others => '0');
-				
+
 				Data1_out <= (others => '0');
 				Data2_out <= (others => '0');
 				Immediate_out <= (others => '0');
-			else 
+			else
 				RtAddr_out <= RtAddr_in;
 				RdAddr_out <= RdAddr_in;
-				PC1_out <= PC1_in;
-								
+				PC_out <= PC_in;
+
 				Data1_out <= Data1_in;
 				Data2_out <= Data2_in;
 				Immediate_out <= Immediate_in;
