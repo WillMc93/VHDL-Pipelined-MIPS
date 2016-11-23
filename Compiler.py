@@ -11,7 +11,7 @@ class MIPS():
 		rt = ""
 		offset = ""
 
-		# Check for and get label
+		# Check for and get this.label
 		pos = instr.find(':') # get colon position
 		if pos > 0:
 			temp = instr.split(':', 1) # split the string at the label
@@ -27,21 +27,12 @@ class MIPS():
 			op = instr[0][:pos] # copy operation
 			instr = instr[1].replace(' ', '') # make cut; deleting all spaces
 
-		# Get Destination
+		# Get Registers/Label
 		pos = instr.find(',')
 		if pos < 0:
 			offset = instr;
 		else:
-			# make split for destination
-			instr = instr.split(',', 1)
-			rd = instr[0][:pos]
-			instr = instr[1]
-
-		# Get Source
-		pos = instr.find(',')
-		if pos > 0:
-
-
+			instr = instr.split(',') # split at all remaing commas
 
 
 		print instr
