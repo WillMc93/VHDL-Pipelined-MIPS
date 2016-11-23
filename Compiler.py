@@ -1,10 +1,58 @@
 # Compiler for Pipelined VHDL
+class MIPS():
+	def parse(self, instr): # take instruction string and return binary rep
+		instr = instr.strip() # get rid of leading/trailing spaces
 
-def encode(instr): # take instruction string and return binary rep
-	op_string = instr.split(' ', 1)
+		# go ahead and declare these
+		label = ""
+		op = ""
+		rd = ""
+		rs = ""
+		rt = ""
+		offset = ""
 
-	print op_string
+		# Check for and get label
+		pos = instr.find(':') # get colon position
+		if pos > 0:
+			temp = instr.split(':', 1) # split the string at the label
+			label = temp[0][:pos] # copy the label to the colon
+			instr = temp[1].strip() # make cut; stripping leading/trailing spaces
 
-string add = "add 9,8,7"
+		# Get Operation
+		pos = instr.find(' ')
+		if pos > 4 or pos < 1:
+			print "ERROR: could not find Operation"
+		else:
+			instr = instr.split(' ', 1) # break up the instruction
+			op = instr[0][:pos] # copy operation
+			instr = instr[1].replace(' ', '') # make cut; deleting all spaces
 
-encode(add)
+		# Get Destination
+		pos = instr.find(',')
+		if pos < 0:
+			offset = instr;
+		else:
+			# make split for destination
+			instr = instr.split(',', 1)
+			rd = instr[0][:pos]
+			instr = instr[1]
+
+		# Get Source
+		pos = instr.find(',')
+		if pos > 0:
+
+
+
+
+		print instr
+		if label != "": print label
+		print op
+		if offset != "": print offset
+		if rd != "": print rd
+		if rs != "": print rs
+		if rt != "": print rt
+
+
+mips = MIPS()
+add = "hey: addi 9 ,8 , 7"
+mips.parse(add)
