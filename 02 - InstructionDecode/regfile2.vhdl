@@ -18,7 +18,7 @@ entity RegFile is
 		-- outputs
 		data1: out std_logic_vector(WORD - 1 downto 0); -- register 1 data
 		data2: out std_logic_vector(WORD - 1 downto 0); -- register 2 data
-		
+
 		-- outputs for debug
 		r1: out std_logic_vector(WORD - 1 downto 0);
 		r2: out std_logic_vector(WORD - 1 downto 0);
@@ -34,7 +34,16 @@ architecture reg of RegFile is
 type memory is array (0 to 7) of std_logic_vector(WORD - 1 downto 0); -- declare registers
 signal mem : memory; -- But why does it have to be that way? Why are we still using this crap?
 begin
-	mem(0) <= (others => '0');
+	mem(0) <= (others => '0'); -- register 0 is always 0
+	-- keep debug outputs updated
+	r1 <= mem(1);
+	r2 <= mem(2);
+	r3 <= mem(3);
+	r4 <= mem(4);
+	r5 <= mem(5);
+	r6 <= mem(6);
+	r7 <= mem(7);
+
 
 	writing: process(CLK, RST)
 	begin
@@ -47,34 +56,25 @@ begin
 				mem(to_integer(unsigned(writeAddr))) <= writeData;
 			end if;
 		end if;
-		
-		-- update debug outputs
-		r1 <= mem(1);
-		r2 <= mem(2);
-		r3 <= mem(3);
-		r4 <= mem(4);
-		r5 <= mem(5);
-		r6 <= mem(6);
-		r7 <= mem(7);
-		
+
 	end process;
-	
+
 	reading: process(read1, read2)
 		variable intRead1, intRead2: integer;
-	begin							
-		intRead1 := to_integer(unsigned(read1));
-		intRead2 := to_integer(unsigned(read2));
-		
+	begin
+		intRead1 := to_integer(unsigned(read1)); -- Declare these as variables to
+		intRead2 := to_integer(unsigned(read2)); -- cut down on reading below.
+
 		case intRead1 is
-			when 0 => data1 <= (others => '0');
+			when 0 => data1 <= (others => '0'); -- register 0 is always 0
 			when others => data1 <= mem(intRead1);
-		end case;  
-		
+		end case;
+
 		case intRead2 is
-			when 0 => data2 <= (others => '0');
+			when 0 => data2 <= (others => '0'); -- register 0 is always 0
 			when others => data2 <= mem(intRead2);
 		end case;
-		
+
 	end process;
 
 end architecture reg;
